@@ -5,18 +5,24 @@ import CoreBluetooth
 import PlaygroundBluetooth
 import PlaygroundSupport
 
-/*
- private let serviceUuid = CBUUID(string: "180F")
- private let characteristicUuid = CBUUID(string: "2A19")
-*/
-private let serviceUuid = CBUUID(string: "1111")
-private let characteristicUuid = CBUUID(string: "2222")
+let BATTERY_MODE = false
+
+private let serviceUuid:CBUUID?
+private let characteristicUuid:CBUUID?
+
+if BATTERY_MODE {
+      serviceUuid = CBUUID(string: "180F")
+      characteristicUuid = CBUUID(string: "2A19")
+}else{
+      serviceUuid = CBUUID(string: "1111")
+      characteristicUuid = CBUUID(string: "2222")
+}
 
 class ViewController: UIViewController {
     
     private var myTextView  = UITextView()
     private var myInputText = UITextView()
-    private var myUIBotton  = UIButton(frame: CGRect(x: 20, y: 20.0, width: 150, height: 90))
+    private var myUIBotton  = UIButton()
     private var vstring = String()
     private var customHeadColor = UIColor()
     private let centralManager = PlaygroundBluetoothCentralManager(services: nil, queue: .main)
@@ -72,6 +78,7 @@ class ViewController: UIViewController {
             ])
             
         // UIBotton
+        myUIBotton.addTarget(self, action: "db", for: .touchDown)
         myUIBotton.addTarget(self, action: "pb", for: .touchUpInside)
         myUIBotton.layer.shadowOpacity = 0.0
         myUIBotton.layer.shadowOffset = CGSize(width: 2.0, height: 2.0)
@@ -103,6 +110,10 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         
     }
+    @objc func db(){
+        myUIBotton.layer.shadowOpacity = 0.0
+        
+    }
     
     @objc func pb(){
         print("push button")
@@ -123,6 +134,8 @@ class ViewController: UIViewController {
                 if myCharacteristic.properties.contains(.writeWithoutResponse) {
                     myPeripheral.writeValue(data!, for: myCharacteristic, type: CBCharacteristicWriteType.withoutResponse)
                 }
+                myUIBotton.layer.shadowOpacity = 1.0
+                
             }
         }
     }
@@ -179,7 +192,7 @@ extension ViewController: PlaygroundBluetoothCentralManagerDelegate {
     
     func centralManager(_ centralManager: PlaygroundBluetoothCentralManager, didConnectTo peripheral: CBPeripheral) {
         peripheral.delegate = self
-        peripheral.discoverServices([serviceUuid])
+        peripheral.discoverServices([serviceUuid!])
     }
     
     func centralManager(_ centralManager: PlaygroundBluetoothCentralManager, didFailToConnectTo peripheral: CBPeripheral, error: Error?) {
@@ -200,7 +213,7 @@ extension ViewController: CBPeripheralDelegate {
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let service = peripheral.services?.first(where: { $0.uuid == serviceUuid }) {
-            peripheral.discoverCharacteristics([characteristicUuid], for: service)
+            peripheral.discoverCharacteristics([characteristicUuid!], for: service)
         }
     }
     
@@ -211,13 +224,15 @@ extension ViewController: CBPeripheralDelegate {
             myUIBotton.backgroundColor = #colorLiteral(red: 0.807843148708344, green: 0.0274509806185961, blue: 0.333333343267441, alpha: 1.0)
             myUIBotton.layer.shadowOpacity = 1.0
             myUIBotton.isEnabled = true
+            if BATTERY_MODE {
+                if characteristic.properties.contains(.read) {
+                    peripheral.readValue(for: characteristic)
+                }
+                if characteristic.properties.contains(.notify) {
+                    peripheral.setNotifyValue(true, for: characteristic)
+                }
+            }
             /*
-            if characteristic.properties.contains(.read) {
-                peripheral.readValue(for: characteristic)
-            }
-            if characteristic.properties.contains(.notify) {
-                peripheral.setNotifyValue(true, for: characteristic)
-            }
             if characteristic.properties.contains(.write) {
                 let data: Data! = "WriteWithResp".data(using: String.Encoding.utf8)
                 peripheral.writeValue(data, for: characteristic, type: CBCharacteristicWriteType.withResponse)
@@ -233,23 +248,24 @@ extension ViewController: CBPeripheralDelegate {
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        /*if let value = characteristic.value?.first {
-            connectionView?.setBatteryLevel(Double(value) / 100, forPeripheral: peripheral)}*/
-        let val = characteristic.value
-        if val != nil {
-            vstring = String(data:(val)!, encoding:String.Encoding.utf8)!
-            
-            if vstring != nil {
-                print (vstring)  
-                myTextView.isScrollEnabled = false
-                myTextView.text = myTextView.text + vstring
-                //scroll to bottom
-                myTextView.selectedRange = _NSRange(location: myTextView.text.characters.count, length: 0)
-                myTextView.isScrollEnabled = true
-                let scrollY = myTextView.contentSize.height - myTextView.bounds.height
-                let scrollPoint = CGPoint(x: 0, y: scrollY > 0 ? scrollY: 0)
-                myTextView.setContentOffset(scrollPoint, animated: true)
-                
+        if BATTERY_MODE {
+            if let value = characteristic.value?.first {
+            connectionView?.setBatteryLevel(Double(value) / 100, forPeripheral: peripheral)}
+        }else{
+            let val = characteristic.value
+            if val != nil {
+                vstring = String(data:(val)!, encoding:String.Encoding.utf8)!
+                if vstring != nil {
+                    print (vstring)  
+                    myTextView.isScrollEnabled = false
+                    myTextView.text = myTextView.text + vstring
+                    //scroll to bottom
+                    myTextView.selectedRange = _NSRange(location: myTextView.text.characters.count, length: 0)
+                    myTextView.isScrollEnabled = true
+                    let scrollY = myTextView.contentSize.height - myTextView.bounds.height
+                    let scrollPoint = CGPoint(x: 0, y: scrollY > 0 ? scrollY: 0)
+                    myTextView.setContentOffset(scrollPoint, animated: true)
+                }
             }
         }
     }
