@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     
     private var myTextView  = UITextView()
     private var myInputText = UITextView()
-    private var myUIBotton  = UIButton()
+    private var myUIButton  = UIButton()
     private var vstring = String()
     private var customHeadColor = UIColor()
     private let centralManager = PlaygroundBluetoothCentralManager(services: nil, queue: .main)
@@ -47,15 +47,15 @@ class ViewController: UIViewController {
         
         myTextView.translatesAutoresizingMaskIntoConstraints  = false
         myInputText.translatesAutoresizingMaskIntoConstraints = false
-        myUIBotton.translatesAutoresizingMaskIntoConstraints  = false
+        myUIButton.translatesAutoresizingMaskIntoConstraints  = false
         
         myTextView.backgroundColor  = #colorLiteral(red: 0.803921580314636, green: 0.803921580314636, blue: 0.803921580314636, alpha: 1.0)
         myInputText.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-        myUIBotton.backgroundColor  = #colorLiteral(red: 0.803921580314636, green: 0.803921580314636, blue: 0.803921580314636, alpha: 1.0)
+        myUIButton.backgroundColor  = #colorLiteral(red: 0.803921580314636, green: 0.803921580314636, blue: 0.803921580314636, alpha: 1.0)
         
         view.addSubview(myTextView)
         view.addSubview(myInputText)
-        view.addSubview(myUIBotton)
+        view.addSubview(myUIButton)
         
         
         
@@ -69,26 +69,26 @@ class ViewController: UIViewController {
             myInputText.heightAnchor.constraint(equalToConstant: 50.0),
             myInputText.bottomAnchor.constraint(equalTo: view.bottomAnchor,constant : -10.0),
             myInputText.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor, constant: 10.0),
-            myInputText.trailingAnchor.constraint(equalTo: myUIBotton.leadingAnchor, constant: -10.0),
-            myUIBotton.topAnchor.constraint(equalTo: myTextView.bottomAnchor, constant: 10.0),
-            myUIBotton.heightAnchor.constraint(equalToConstant: 50.0),
-            myUIBotton.widthAnchor.constraint(equalToConstant: 50.0),
-            myUIBotton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor,constant: -10.0)
+            myInputText.trailingAnchor.constraint(equalTo: myUIButton.leadingAnchor, constant: -10.0),
+            myUIButton.topAnchor.constraint(equalTo: myTextView.bottomAnchor, constant: 10.0),
+            myUIButton.heightAnchor.constraint(equalToConstant: 50.0),
+            myUIButton.widthAnchor.constraint(equalToConstant: 50.0),
+            myUIButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor,constant: -10.0)
             
             ])
             
         // UIBotton
-        myUIBotton.addTarget(self, action: "db", for: .touchDown)
-        myUIBotton.addTarget(self, action: "pb", for: .touchUpInside)
-        myUIBotton.layer.shadowOpacity = 0.0
-        myUIBotton.layer.shadowOffset = CGSize(width: 2.0, height: 2.0)
+        myUIButton.addTarget(self, action: "db", for: .touchDown)
+        myUIButton.addTarget(self, action: "pb", for: .touchUpInside)
+        myUIButton.layer.shadowOpacity = 0.0
+        myUIButton.layer.shadowOffset = CGSize(width: 2.0, height: 2.0)
         myInputText.layer.cornerRadius = 5.0
-        myUIBotton.layer.cornerRadius = 25.0
-        myUIBotton.setTitle("▲", for: UIControlState.normal)
-        myUIBotton.setTitleColor(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0), for: UIControlState.normal) 
-        myUIBotton.setTitle("▲", for: UIControlState.highlighted)
-        myUIBotton.setTitleColor(#colorLiteral(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0), for: UIControlState.highlighted)
-        myUIBotton.isEnabled = false
+        myUIButton.layer.cornerRadius = 25.0
+        myUIButton.setTitle("▲", for: UIControlState.normal)
+        myUIButton.setTitleColor(#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0), for: UIControlState.normal) 
+        myUIButton.setTitle("▲", for: UIControlState.highlighted)
+        myUIButton.setTitleColor(#colorLiteral(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0), for: UIControlState.highlighted)
+        myUIButton.isEnabled = false
         // connectionView settings
         centralManager.delegate = self
         
@@ -111,7 +111,7 @@ class ViewController: UIViewController {
         
     }
     @objc func db(){
-        myUIBotton.layer.shadowOpacity = 0.0
+        myUIButton.layer.shadowOpacity = 0.0
         
     }
     
@@ -134,7 +134,7 @@ class ViewController: UIViewController {
                 if myCharacteristic.properties.contains(.writeWithoutResponse) {
                     myPeripheral.writeValue(data!, for: myCharacteristic, type: CBCharacteristicWriteType.withoutResponse)
                 }
-                myUIBotton.layer.shadowOpacity = 1.0
+                myUIButton.layer.shadowOpacity = 1.0
                 
             }
         }
@@ -203,14 +203,13 @@ extension ViewController: PlaygroundBluetoothCentralManagerDelegate {
         print("disconnected")
         myPeripheral = nil
         myCharacteristic = nil
-        myUIBotton.backgroundColor = #colorLiteral(red: 0.803921580314636, green: 0.803921580314636, blue: 0.803921580314636, alpha: 1.0)
-        myUIBotton.layer.shadowOpacity = 0.0
-        myUIBotton.isEnabled = false
+        myUIButton.backgroundColor = #colorLiteral(red: 0.803921580314636, green: 0.803921580314636, blue: 0.803921580314636, alpha: 1.0)
+        myUIButton.layer.shadowOpacity = 0.0
+        myUIButton.isEnabled = false
     }
 }
 
 extension ViewController: CBPeripheralDelegate {
-    
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let service = peripheral.services?.first(where: { $0.uuid == serviceUuid }) {
             peripheral.discoverCharacteristics([characteristicUuid!], for: service)
@@ -221,9 +220,9 @@ extension ViewController: CBPeripheralDelegate {
         if let characteristic = service.characteristics?.first(where: { $0.uuid == characteristicUuid }) {
             myPeripheral = peripheral
             myCharacteristic = characteristic
-            myUIBotton.backgroundColor = #colorLiteral(red: 0.807843148708344, green: 0.0274509806185961, blue: 0.333333343267441, alpha: 1.0)
-            myUIBotton.layer.shadowOpacity = 1.0
-            myUIBotton.isEnabled = true
+            myUIButton.backgroundColor = #colorLiteral(red: 0.807843148708344, green: 0.0274509806185961, blue: 0.333333343267441, alpha: 1.0)
+            myUIButton.layer.shadowOpacity = 1.0
+            myUIButton.isEnabled = true
             if BATTERY_MODE {
                 if characteristic.properties.contains(.read) {
                     peripheral.readValue(for: characteristic)
@@ -275,3 +274,4 @@ extension ViewController: CBPeripheralDelegate {
 // Present the view controller in the Live View window
 //PlaygroundPage.current.needsIndefiniteExecution = true
 PlaygroundPage.current.liveView = ViewController()
+
