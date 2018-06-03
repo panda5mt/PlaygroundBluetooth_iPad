@@ -11,36 +11,42 @@ private let serviceUuid:CBUUID?
 private let characteristicUuid:CBUUID?
 
 if BATTERY_MODE {
-      serviceUuid = CBUUID(string: "180F")
-      characteristicUuid = CBUUID(string: "2A19")
+    serviceUuid = CBUUID(string: "180F")
+    characteristicUuid = CBUUID(string: "2A19")
 }else{
-      serviceUuid = CBUUID(string: "1111")
-      characteristicUuid = CBUUID(string: "2222")
+    serviceUuid = CBUUID(string: "1111")
+    characteristicUuid = CBUUID(string: "2222")
 }
 
-class ViewController: UIViewController {
+class MyLiveView: UIView{}
+
+class ViewController: UIViewController  {
     
     private var myTextView  = UITextView()
     private var myInputText = UITextView()
     private var myUIButton  = UIButton()
     private var vstring = String()
-    private var customHeadColor = UIColor()
+    //private var customHeadColor = UIColor()
     private let centralManager = PlaygroundBluetoothCentralManager(services: nil, queue: .main)
     private var connectionView: PlaygroundBluetoothConnectionView?
     
+    
     private var myCharacteristic: CBCharacteristic!
     private var myPeripheral: CBPeripheral!
+    //let liveview = MyLiveView()
     
-    override func updateViewConstraints() {
-        super.updateViewConstraints()
+    override func loadView() {
+        super.loadView()
+        //let live
+        view = MyLiveView()
     }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        customHeadColor = #colorLiteral(red: 0.254901975393295, green: 0.274509817361832, blue: 0.301960796117783, alpha: 1.0) 
-        self.view.backgroundColor = customHeadColor
+        
+        let customHeadColor = #colorLiteral(red: 0.254901975393295, green: 0.274509817361832, blue: 0.301960796117783, alpha: 1.0) 
+        view.backgroundColor = customHeadColor
         // disable auto layout
-        self.view.translatesAutoresizingMaskIntoConstraints = false
+        view.translatesAutoresizingMaskIntoConstraints = false
         // TextView layout
         myTextView.isEditable = false
         myInputText.isEditable = true
@@ -59,7 +65,7 @@ class ViewController: UIViewController {
         
         
         
-
+        
         // UITextViews layout
         NSLayoutConstraint.activate([
             myTextView.topAnchor.constraint(equalTo: view.topAnchor,constant:80.0),
@@ -76,7 +82,7 @@ class ViewController: UIViewController {
             myUIButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor,constant: -10.0)
             
             ])
-            
+        
         // UIBotton
         myUIButton.addTarget(self, action: "db", for: .touchDown)
         myUIButton.addTarget(self, action: "pb", for: .touchUpInside)
@@ -232,14 +238,14 @@ extension ViewController: CBPeripheralDelegate {
                 }
             }
             /*
-            if characteristic.properties.contains(.write) {
-                let data: Data! = "WriteWithResp".data(using: String.Encoding.utf8)
-                peripheral.writeValue(data, for: characteristic, type: CBCharacteristicWriteType.withResponse)
-            }
-            if characteristic.properties.contains(.writeWithoutResponse) {
-                let data: Data! = "writeWithoutResp".data(using: String.Encoding.utf8)
-                peripheral.writeValue(data, for: characteristic, type: CBCharacteristicWriteType.withoutResponse)
-            }*/
+             if characteristic.properties.contains(.write) {
+             let data: Data! = "WriteWithResp".data(using: String.Encoding.utf8)
+             peripheral.writeValue(data, for: characteristic, type: CBCharacteristicWriteType.withResponse)
+             }
+             if characteristic.properties.contains(.writeWithoutResponse) {
+             let data: Data! = "writeWithoutResp".data(using: String.Encoding.utf8)
+             peripheral.writeValue(data, for: characteristic, type: CBCharacteristicWriteType.withoutResponse)
+             }*/
         }
     }
     func peripheral(_ peripheral: CBPeripheral, didWriteValueForCharacteristics characteristic: CBCharacteristic, error: Error?) {
@@ -249,7 +255,7 @@ extension ViewController: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if BATTERY_MODE {
             if let value = characteristic.value?.first {
-            connectionView?.setBatteryLevel(Double(value) / 100, forPeripheral: peripheral)}
+                connectionView?.setBatteryLevel(Double(value) / 100, forPeripheral: peripheral)}
         }else{
             let val = characteristic.value
             if val != nil {
@@ -274,4 +280,3 @@ extension ViewController: CBPeripheralDelegate {
 // Present the view controller in the Live View window
 //PlaygroundPage.current.needsIndefiniteExecution = true
 PlaygroundPage.current.liveView = ViewController()
-
