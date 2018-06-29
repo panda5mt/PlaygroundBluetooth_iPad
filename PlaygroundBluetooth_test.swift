@@ -1,5 +1,3 @@
-
-
 import UIKit
 import CoreBluetooth
 import PlaygroundBluetooth
